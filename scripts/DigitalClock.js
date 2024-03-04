@@ -1,16 +1,25 @@
 ((name) => {
   class DigitalClock extends HTMLElement
   {
+    #shadow  = undefined;
+    #display = undefined;
+
     constructor()
     {
       console.log("DigitalClock: constructor");
       /************************************************/
       super();
       /************************************************/
-      const shadow = this.attachShadow({mode: 'open'});
+      this.#shadow = this.attachShadow({mode: 'open'});
       {
-        shadow.innerHTML = this.render();
+        this.#shadow.innerHTML = this.render();
       }
+      /************************************************/
+      this.#display = this.#shadow.getElementById("display");
+      /************************************************/
+      setInterval(() => {
+        this.updateUI();
+      }, 1000);
     }
     /************************************************/
     static get observedAttributes()
@@ -19,6 +28,7 @@
       /************************************************/
       retValue.push("color");
       retValue.push("size");
+      retValue.push("value");
       /************************************************/
       return retValue;
     }
@@ -48,9 +58,19 @@
     render()
     {
       let retValue = `
-      <p>
-        Hello, ${this.getAttribute('background')}
-      </p>
+      <style>
+      .clock {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        color: #17D4FE;
+        font-size: 64px;
+        font-family: "Fira Code";
+        letter-spacing: 10px;
+      }
+      </style>
+      <div id="display" class="clock"></div>
       `;
       /************************************************/
       return retValue;
@@ -58,7 +78,22 @@
     /************************************************/
     updateUI()
     {
-      setTimeout
+      this.#display.innerText = this.#now();
+    }
+    /************************************************/
+    #now()
+    {
+      var date = new Date();
+      //////////////////////////////////////////////////
+      var hh = date.getHours()  ; // 0 - 23
+      var mm = date.getMinutes(); // 0 - 59
+      var ss = date.getSeconds(); // 0 - 59
+      //////////////////////////////////////////////////
+      hh = hh.toString().padStart(2, "0");
+      mm = mm.toString().padStart(2, "0");
+      ss = ss.toString().padStart(2, "0");
+      //////////////////////////////////////////////////
+      return `${hh}:${mm}:${ss}`;
     }
   }
   /************************************************/
